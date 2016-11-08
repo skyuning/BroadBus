@@ -10,8 +10,17 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    signingConfigs {
+        release {
+            storeFile file('key.jks')
+            storePassword "123123"
+            keyAlias "test"
+            keyPassword "123123"
+        }
+    }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -31,7 +40,7 @@ repositories {
 dependencies {
     provided files('libs/javax.jar')
     provided files('libs/tools.jar')
-//    compile(name: 'broadcastex-api-release', ext: 'aar')
-    compile project(':broadcastex-api')
+    compile(name: 'broadcastex-api-release', ext: 'aar')
+//    compile project(':broadcastex-api')
     compile 'org.freemarker:freemarker:2.3.25-incubating'
 }

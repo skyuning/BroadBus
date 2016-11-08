@@ -8,3 +8,4 @@ gradle.properties
 .idea
 build
 *.jks
+aars

@@ -1,0 +1,48 @@
+apply plugin: 'com.android.application'
+//apply plugin: 'com.neenbedankt.android-apt'
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:20.0.0'
+
+//    compile(name: 'broadcastex-api-release', ext: 'aar')
+//    compile(name: 'broadcastex-compiler-release', ext: 'aar')
+    compile project(':broadcastex-api')
+    compile project(':broadcastex-compiler')
+    compile 'org.freemarker:freemarker:2.3.25-incubating'
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+}
+
+android {
+    compileSdkVersion 20
+    buildToolsVersion "22"
+
+    defaultConfig {
+        applicationId "me.skyun.test"
+        minSdkVersion 15
+        targetSdkVersion 20
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories {
+    flatDir {
+        dirs '../aars'
+    }
+}
+
+

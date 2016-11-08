@@ -55,13 +55,6 @@ public class BroadcastProcessor extends AbstractProcessor {
         mFiler = (JavacFiler) processingEnvironment.getFiler();
         mMessager = processingEnvironment.getMessager();
         mConfig = AptUtils.initConfiguration();
-        try {
-            mConfig.setTemplateLoader(
-                    new FileTemplateLoader(new File
-                            ("/Users/linyun/Lab/broadcastex/broadcastex-compiler/src/main/resources/templates")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
+import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 
@@ -60,20 +61,14 @@ public class AptUtils {
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         config.setLogTemplateExceptions(false);
         try {
-            config.setDirectoryForTemplateLoading(new File("."));
+            config.setDirectoryForTemplateLoading(new File("../"));
+            String path = "broadcastex-compiler/src/main/resources/templates";
+            config.setTemplateLoader(new FileTemplateLoader(new File(path)));
+            return config;
         } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException("Failed to init freemarker configuration.", e);
         }
-        return config;
-    }
-
-    public static <T> T findTypeInList(List<?> list, Class<T> targetClz) {
-        for (Object item : list) {
-            if (item.getClass() == targetClz) {
-                return (T) item;
-            }
-        }
-        return null;
     }
 
     public static Attribute.Compound getAnnotatioMirror(Symbol symbol, Class annoClz) {

@@ -40,7 +40,7 @@ repositories {
 dependencies {
     provided files('libs/javax.jar')
     provided files('libs/tools.jar')
-    compile(name: 'broadcastex-api-release', ext: 'aar')
-//    compile project(':broadcastex-api')
     compile 'org.freemarker:freemarker:2.3.25-incubating'
+//    compile(name: 'broadcastex-api-release', ext: 'aar')
+    compile project(':broadcastex-api')
 }

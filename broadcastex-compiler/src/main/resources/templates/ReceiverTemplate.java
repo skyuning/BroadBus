@@ -4,5 +4,5 @@
                 target.${methodName}(${paramList});
             }
         };
-        registerReceiver(context, receiver, ${action});
+        registerReceiver(context, receiver, "${action}", new String[]{${categories}});
 

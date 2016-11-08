@@ -1,9 +1,11 @@
 package me.skyun.anno.compiler;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -63,5 +65,23 @@ public class AptUtils {
             e.printStackTrace();
         }
         return config;
+    }
+
+    public static <T> T findTypeInList(List<?> list, Class<T> targetClz) {
+        for (Object item : list) {
+            if (item.getClass() == targetClz) {
+                return (T) item;
+            }
+        }
+        return null;
+    }
+
+    public static Attribute.Compound getAnnotatioMirror(Symbol symbol, Class annoClz) {
+        for (Attribute.Compound compound : symbol.getAnnotationMirrors()) {
+            if (compound.getAnnotationType().toString().equals(annoClz.getCanonicalName())) {
+                return compound;
+            }
+        }
+        return null;
     }
 }

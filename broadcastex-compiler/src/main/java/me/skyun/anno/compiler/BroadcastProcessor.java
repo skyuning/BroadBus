@@ -1,5 +1,6 @@
 package me.skyun.anno.compiler;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.processing.JavacFiler;
@@ -26,8 +27,6 @@ import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
 import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
 import freemarker.core.ParseException;
 import freemarker.template.Configuration;
 import freemarker.template.MalformedTemplateNameException;
@@ -35,13 +34,13 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateNotFoundException;
 import me.skyun.anno.api.BroadcastExReceiver;
+import me.skyun.anno.api.ReceiverRegister;
 
 /**
  * Created by linyun on 16/10/28.
  */
 public class BroadcastProcessor extends AbstractProcessor {
 
-    private static final String GEN_FILE_POSTFIX = "$$ReceiverRegister";
     private static final String RECEIVER_REGISTER_TEMPLATE = "ReceiverRegisterTemplate.java";
     private static final String RECEIVER_TEMPLATE = "ReceiverTemplate.java";
     private JavacFiler mFiler;
@@ -58,13 +57,8 @@ public class BroadcastProcessor extends AbstractProcessor {
         mConfig = AptUtils.initConfiguration();
         try {
             mConfig.setTemplateLoader(
-                    new MultiTemplateLoader(
-                            new TemplateLoader[]{
-                                    new FileTemplateLoader(new File("broadcastex-compiler/src/main/resources/templates")),
-                                    new FileTemplateLoader(new File("app/build/intermediates/classes/debug"))
-                            }
-                    )
-            );
+                    new FileTemplateLoader(new File
+                            ("/Users/linyun/Lab/broadcastex/broadcastex-compiler/src/main/resources/templates")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -118,7 +112,7 @@ public class BroadcastProcessor extends AbstractProcessor {
 
     private Writer genReceiverRegister(Symbol.ClassSymbol classSymbol) {
         String packageName = mElementUtils.getPackageOf(classSymbol).getQualifiedName().toString();
-        String simpleName = classSymbol.getSimpleName() + GEN_FILE_POSTFIX;
+        String simpleName = classSymbol.getSimpleName() + ReceiverRegister.GEN_FILE_POSTFIX;
         String fullName = packageName + "." + simpleName;
         mMessager.printMessage(Diagnostic.Kind.NOTE, "Start rendering receiver register: " + fullName);
 
@@ -151,12 +145,27 @@ public class BroadcastProcessor extends AbstractProcessor {
 
         ReceiverModel model = new ReceiverModel();
         model.methodName = methodSymbol.getSimpleName().toString();
-        try {
-            if (methodSymbol.getParameters().size() > 0) {
-                Type.MethodType methodType = (Type.MethodType) methodSymbol.asType();
-                model.paramTypes = methodType.getParameterTypes();
-                model.setParamSymbols(methodSymbol.getParameters());
+        if (methodSymbol.getParameters().size() > 0) {
+            Type.MethodType methodType = (Type.MethodType) methodSymbol.asType();
+            model.paramTypes = methodType.getParameterTypes();
+            model.setParamSymbols(methodSymbol.getParameters());
+        }
+        Attribute.Compound annoMirror = AptUtils.getAnnotatioMirror(methodSymbol, BroadcastExReceiver.class);
+        if (annoMirror != null) {
+            Map<Symbol.MethodSymbol, Attribute> elementValues = annoMirror.getElementValues();
+            for (Symbol.MethodSymbol annoMethod : elementValues.keySet()) {
+                if (BroadcastExReceiver.ACTION_TYPE.equals(annoMethod.getSimpleName().toString())) {
+                    Attribute.Class actionTypeValue = (Attribute.Class) elementValues.get(annoMethod);
+                    model.action = actionTypeValue.getValue().toString();
+                } else if (BroadcastExReceiver.CATEGORY_TYPES.equals(annoMethod.getSimpleName().toString())) {
+                    List<Attribute.Class> categoryTypesValue =
+                            (List<Attribute.Class>) elementValues.get(annoMethod).getValue();
+                    model.setCategoryTypes(categoryTypesValue);
+                }
             }
+        }
+
+        try {
             Template template = mConfig.getTemplate(RECEIVER_TEMPLATE);
             template.process(model, writer);
         } catch (IOException e) {

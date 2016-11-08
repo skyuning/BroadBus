@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.widget.Toast;
 
 import me.skyun.anno.api.BroadcastExReceiver;
+import me.skyun.anno.api.ReceiverRegister;
 
 public class MainActivity extends FragmentActivity {
 
@@ -18,9 +21,16 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ReceiverRegister.register(this, this);
+
+        Intent intent = new Intent(Actions.TestAction.class.getCanonicalName());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    @BroadcastExReceiver
+    @BroadcastExReceiver(actionType = Actions.TestAction.class,
+            categoryTypes = {Integer.class, String.class},
+            categories = {"aa", "bb"})
     public void test(Context context, Intent intent) {
+        Toast.makeText(MainActivity.this, "broadcast received", Toast.LENGTH_SHORT).show();
     }
 }

@@ -1,6 +1,7 @@
 package me.skyun.anno.compiler;
 
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.processing.JavacFiler;
 
 import java.io.File;
@@ -77,22 +78,22 @@ public class BroadcastProcessor extends AbstractProcessor {
     }
 
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
-        Map<Symbol.ClassSymbol, List<Element>> annotatedElementByClass =
-                new HashMap<Symbol.ClassSymbol, List<Element>>();
+        Map<Symbol.ClassSymbol, List<Symbol.MethodSymbol>> methodSymbolsByClass =
+                new HashMap<Symbol.ClassSymbol, List<Symbol.MethodSymbol>>();
         for (TypeElement anno : annotations) {
             for (Element element : env.getElementsAnnotatedWith(anno)) {
                 Symbol.ClassSymbol classSymbol = AptUtils.getEnclosingClass(element);
-                List<Element> annotatedElements = annotatedElementByClass.get(classSymbol);
-                if (annotatedElements == null) {
-                    annotatedElements = new ArrayList<Element>();
+                List<Symbol.MethodSymbol> methodSymbols = methodSymbolsByClass.get(classSymbol);
+                if (methodSymbols == null) {
+                    methodSymbols = new ArrayList<Symbol.MethodSymbol>();
                 }
-                annotatedElements.add(element);
-                annotatedElementByClass.put(classSymbol, annotatedElements);
+                methodSymbols.add((Symbol.MethodSymbol) element);
+                methodSymbolsByClass.put(classSymbol, methodSymbols);
             }
         }
-        for (Symbol.ClassSymbol classSymbol : annotatedElementByClass.keySet()) {
+        for (Symbol.ClassSymbol classSymbol : methodSymbolsByClass.keySet()) {
             try {
-                processReceiverRegister(classSymbol, annotatedElementByClass.get(classSymbol));
+                processReceiverRegister(classSymbol, methodSymbolsByClass.get(classSymbol));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -100,12 +101,13 @@ public class BroadcastProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void processReceiverRegister(Symbol.ClassSymbol classSymbol, List<Element> annatatedElementList) throws IOException {
+    private void processReceiverRegister(Symbol.ClassSymbol classSymbol, List<Symbol.MethodSymbol> methodSymbolList)
+            throws IOException {
         mMessager.printMessage(Diagnostic.Kind.NOTE,
                 "Start processing receiver register for: " + classSymbol.getQualifiedName());
         Writer writer = genReceiverRegister(classSymbol);
-        for (Element annotationElement : annatatedElementList) {
-            processReceiver(annotationElement, writer);
+        for (Symbol.MethodSymbol methodSymbol : methodSymbolList) {
+            processReceiver(methodSymbol, writer);
         }
         writer.write("    }\n}");
         writer.flush();
@@ -123,7 +125,7 @@ public class BroadcastProcessor extends AbstractProcessor {
         try {
             Writer writer = mFiler.createSourceFile(fullName).openWriter();
             Template template = mConfig.getTemplate(RECEIVER_REGISTER_TEMPLATE);
-            FileModel fileModel = new FileModel(packageName, simpleName);
+            FileModel fileModel = new FileModel(packageName, simpleName, classSymbol.getSimpleName().toString());
             template.process(fileModel, writer);
             mMessager.printMessage(Diagnostic.Kind.NOTE, "Render receiver register succeed: " + fullName);
             return writer;
@@ -143,20 +145,27 @@ public class BroadcastProcessor extends AbstractProcessor {
         throw new RuntimeException("Render Receiver Register failed for: " + fullName);
     }
 
-    private void processReceiver(Element annotatedElement, Writer writer) throws IOException {
+    private void processReceiver(Symbol.MethodSymbol methodSymbol, Writer writer) throws IOException {
         mMessager.printMessage(Diagnostic.Kind.NOTE,
-                "Start processing receiver " + annotatedElement.getSimpleName());
+                "Start processing receiver " + methodSymbol.getSimpleName());
+
+        ReceiverModel model = new ReceiverModel();
+        model.methodName = methodSymbol.getSimpleName().toString();
         try {
-            ReceiverModel model = new ReceiverModel();
-            model.methodName = annotatedElement.getSimpleName().toString();
-            writer.write("        // register receiver for " + model.methodName + "\n");
+            if (methodSymbol.getParameters().size() > 0) {
+                Type.MethodType methodType = (Type.MethodType) methodSymbol.asType();
+                model.paramTypes = methodType.getParameterTypes();
+                model.setParamSymbols(methodSymbol.getParameters());
+            }
+            Template template = mConfig.getTemplate(RECEIVER_TEMPLATE);
+            template.process(model, writer);
         } catch (IOException e) {
             e.printStackTrace();
-            mMessager.printMessage(Diagnostic.Kind.NOTE,
-                    "Processing receiver failed" + annotatedElement.getSimpleName());
+            mMessager.printMessage(Diagnostic.Kind.NOTE, "Processing receiver failed" + model.methodName);
+        } catch (TemplateException e) {
+            e.printStackTrace();
         }
-        mMessager.printMessage(Diagnostic.Kind.NOTE,
-                "Processing receiver succeed: " + annotatedElement.getSimpleName());
+        mMessager.printMessage(Diagnostic.Kind.NOTE, "Processing receiver succeed: " + model.methodName);
     }
 
     @Override

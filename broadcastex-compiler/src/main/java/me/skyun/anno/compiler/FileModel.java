@@ -4,13 +4,14 @@ package me.skyun.anno.compiler;
  * Created by linyun on 16/11/6.
  */
 public class FileModel {
-    public String packageName = "me.skyun.mock";
-    public String className = "MockClass";
-    public String statement = "${statement}";
+    public String packageName;
+    public String className;
+    public String targetType;
 
-    public FileModel(String packageName, String className) {
+    public FileModel(String packageName, String className, String targetType) {
         this.packageName = packageName;
         this.className = className;
+        this.targetType = targetType;
     }
 
     public String getPackageName() {
@@ -21,7 +22,7 @@ public class FileModel {
         return className;
     }
 
-    public String getStatement() {
-        return statement;
+    public String getTargetType() {
+        return targetType;
     }
 }

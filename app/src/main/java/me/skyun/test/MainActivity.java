@@ -8,7 +8,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import me.skyun.anno.api.BroadcastExReceiver;
-import me.skyun.anno.api.ReceiverRegister;
 
 public class MainActivity extends FragmentActivity {
 
@@ -21,9 +20,9 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ReceiverRegister.register(this, this);
 
         Intent intent = new Intent(Actions.TestAction.class.getCanonicalName());
+        intent.addCategory(this.toString());
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

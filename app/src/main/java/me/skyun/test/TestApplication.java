@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.TextView;
 
+import me.skyun.anno.api.ActivityLifeCycleHook;
+
 /**
  * Created by linyun on 16/11/2.
  */
@@ -16,6 +18,7 @@ public class TestApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        registerActivityLifecycleCallbacks(new ActivityLifeCycleHook());
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {

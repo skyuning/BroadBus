@@ -5,7 +5,6 @@ import com.sun.tools.javac.code.Symbol;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;

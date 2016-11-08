@@ -4,7 +4,8 @@ import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -17,24 +18,31 @@ public class ReceiverModel {
     public List<Type> paramTypes;
     private List<Symbol.VarSymbol> paramSymbols;
     private StringBuilder paramList = new StringBuilder();
-    public StringBuilder categories = new StringBuilder();
+    public List<String> categories = new ArrayList<String>();
 
     public String getAction() {
         return action;
     }
 
-    public void setCategoryTypes(List<Attribute.Class> categoryTypes) {
-        categories.delete(0, categories.length());
-        for (Attribute.Class c : categoryTypes) {
-            categories.append(String.format(Locale.getDefault(), "\"%s\", ", c.getValue().toString()));
-        }
-        if (categories.length() > 2) {
-            categories.delete(categories.length() - 2, categories.length());
+    public void addCategories(String[] categories) {
+        Collections.addAll(this.categories, categories);
+    }
+
+    public void addCategoryTypes(List<Attribute> categoryTypes) {
+        for (Attribute c : categoryTypes) {
+            categories.add(String.format(Locale.getDefault(), "\"%s\", ", c.getValue().toString()));
         }
     }
 
     public String getCategories() {
-        return categories.toString();
+        if (categories.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder(categories.remove(0));
+        for (String c : categories) {
+            builder.append(", ").append(c);
+        }
+        return builder.toString();
     }
 
     public String getMethodName() {

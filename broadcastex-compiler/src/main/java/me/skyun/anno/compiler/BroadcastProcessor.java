@@ -5,7 +5,6 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.processing.JavacFiler;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
-import freemarker.cache.FileTemplateLoader;
 import freemarker.core.ParseException;
 import freemarker.template.Configuration;
 import freemarker.template.MalformedTemplateNameException;
@@ -151,11 +149,16 @@ public class BroadcastProcessor extends AbstractProcessor {
                     Attribute.Class actionTypeValue = (Attribute.Class) elementValues.get(annoMethod);
                     model.action = actionTypeValue.getValue().toString();
                 } else if (BroadcastExReceiver.CATEGORY_TYPES.equals(annoMethod.getSimpleName().toString())) {
-                    List<Attribute.Class> categoryTypesValue =
-                            (List<Attribute.Class>) elementValues.get(annoMethod).getValue();
-                    model.setCategoryTypes(categoryTypesValue);
+                    List<Attribute> categoryTypesValue = (List<Attribute>) elementValues.get(annoMethod).getValue();
+                    model.addCategoryTypes(categoryTypesValue);
                 }
             }
+        }
+        BroadcastExReceiver anno = methodSymbol.getAnnotation(BroadcastExReceiver.class);
+        model.addCategories(anno.categories());
+        String action = anno.action();
+        if (action != null && action.length() > 0) {
+            model.action = anno.action();
         }
 
         try {

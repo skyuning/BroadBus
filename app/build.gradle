@@ -8,7 +8,7 @@ dependencies {
 //    compile(name: 'broadcastex-compiler-release', ext: 'aar')
     compile project(':broadcastex-api')
     compile project(':broadcastex-compiler')
-    compile 'org.freemarker:freemarker:2.3.25-incubating'
+    provided 'org.freemarker:freemarker:2.3.25-incubating'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 }
 
@@ -35,7 +35,7 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

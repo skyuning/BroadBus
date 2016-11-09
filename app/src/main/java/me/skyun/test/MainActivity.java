@@ -28,8 +28,8 @@ public class MainActivity extends FragmentActivity {
 
     @BroadcastExReceiver(actionType = Actions.TestAction.class,
             categoryTypes = {Integer.class, String.class},
-            categories = {"aa", "bb"})
-    public void test(Context context, Intent intent) {
+            categories = {"aa", "bb", "cc"})
+    public void test(Context context, Intent intent, String sss, int iii) {
         Toast.makeText(MainActivity.this, "broadcast received", Toast.LENGTH_SHORT).show();
     }
 }

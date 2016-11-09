@@ -138,8 +138,7 @@ public class BroadcastProcessor extends AbstractProcessor {
         model.methodName = methodSymbol.getSimpleName().toString();
         if (methodSymbol.getParameters().size() > 0) {
             Type.MethodType methodType = (Type.MethodType) methodSymbol.asType();
-            model.paramTypes = methodType.getParameterTypes();
-            model.setParamSymbols(methodSymbol.getParameters());
+            model.setParams(methodType.getParameterTypes(), methodSymbol.getParameters());
         }
         Attribute.Compound annoMirror = AptUtils.getAnnotatioMirror(methodSymbol, BroadcastExReceiver.class);
         if (annoMirror != null) {

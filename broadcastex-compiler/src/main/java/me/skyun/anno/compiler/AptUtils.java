@@ -5,6 +5,8 @@ import com.sun.tools.javac.code.Symbol;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -77,5 +79,17 @@ public class AptUtils {
             }
         }
         return null;
+    }
+
+    public static String arrayJoin(String jointer, Collection<String> collection) {
+        if (collection.isEmpty()) {
+            return "";
+        }
+        Iterator<String> iterator = collection.iterator();
+        StringBuilder builder = new StringBuilder(iterator.next());
+        while (iterator.hasNext()) {
+            builder.append(", ").append(iterator.next());
+        }
+        return builder.toString();
     }
 }

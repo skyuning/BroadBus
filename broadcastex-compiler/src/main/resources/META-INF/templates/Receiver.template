@@ -21,4 +21,5 @@
         registerReceiver(context, target, receiver, "${action}",
                 new String[]{"${categoryArray}"}
         );
+        receiverList.add(receiver);
 

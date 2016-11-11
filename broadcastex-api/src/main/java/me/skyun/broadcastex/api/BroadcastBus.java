@@ -89,9 +89,8 @@ public class BroadcastBus {
             Constructor<ReceiverRegistrar<T>> constructor = registrarClz.getConstructor();
             ReceiverRegistrar<T> registrar = constructor.newInstance();
 
-            List<BroadcastReceiver> result = new ArrayList<>();
-            mReceiversByTarget.put(getTargetKey(target), result);
-            registrar.registerReceivers(context, target, result);
+            List<BroadcastReceiver> receivers = registrar.registerReceivers(context, target);
+            mReceiversByTarget.put(getTargetKey(target), receivers);
         } catch (ClassNotFoundException ignored) {
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -106,7 +105,7 @@ public class BroadcastBus {
 
     public void unregisterTarget(Context context, Object target) {
         String key = getTargetKey(target);
-        if (mReceiversByTarget.containsKey(target)) {
+        if (mReceiversByTarget.containsKey(key)) {
             for (BroadcastReceiver receiver : mReceiversByTarget.remove(key)) {
                 LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver);
             }

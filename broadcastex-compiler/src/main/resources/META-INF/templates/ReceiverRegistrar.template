@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.BroadcastReceiver;
 import android.os.Bundle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.skyun.broadcastex.api.ReceiverRegistrar;
@@ -14,5 +15,6 @@ import ${packageName}.${className};
 public class ${className} extends ReceiverRegistrar<${targetType}> {
 
     @Override
-    protected void registerReceivers(Context context, final ${targetType} target, List<BroadcastReceiver> result) {
+    protected List<BroadcastReceiver> registerReceivers(Context context, final ${targetType} target) {
+        List<BroadcastReceiver> receiverList = new ArrayList<>();
         BroadcastReceiver receiver;

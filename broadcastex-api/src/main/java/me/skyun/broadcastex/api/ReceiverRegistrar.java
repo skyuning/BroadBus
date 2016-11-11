@@ -20,7 +20,7 @@ public abstract class ReceiverRegistrar<T> {
 
     public static final String REGISTER_POSTFIX = "$$ReceiverRegistrar";
 
-    protected abstract void registerReceivers(Context context, T target, List<BroadcastReceiver> result);
+    protected abstract List<BroadcastReceiver> registerReceivers(Context context, T target);
 
     protected Object[] getParamValues(Context context, Intent intent, String[] paramTypes) {
         Object[] paramValues = new Object[paramTypes.length];

@@ -92,6 +92,7 @@ public class BroadcastProcessor extends AbstractProcessor {
         for (Symbol.MethodSymbol methodSymbol : methodSymbolList) {
             genRegisterReceiverCode(methodSymbol, writer);
         }
+        writer.write("        return receiverList;\n");
         writer.write("    }\n}");
         writer.flush();
         writer.close();

@@ -1,4 +1,4 @@
-package me.skyun.anno.api;
+package me.skyun.broadcastex.api;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,14 +22,14 @@ public @interface BroadcastExReceiver {
     /**
      * 必须跟{@link #actionType()}函数名一致
      */
-    public static final String ACTION_TYPE = "actionType";
+    String ACTION_TYPE = "actionType";
 
     Class actionType() default Class.class;
 
     /**
      * 必须跟{@link #actionType()}函数名一致
      */
-    public static final String CATEGORY_TYPES = "categoryTypes";
+    String CATEGORY_TYPES = "categoryTypes";
 
     Class[] categoryTypes() default {};
 }

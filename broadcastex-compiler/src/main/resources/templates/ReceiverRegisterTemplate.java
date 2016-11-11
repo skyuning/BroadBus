@@ -2,12 +2,10 @@ package ${packageName};
 
 import android.content.Context;
 import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-import me.skyun.anno.api.ReceiverRegister;
+import me.skyun.broadcastex.api.ReceiverRegistrar;
+import java.util.List;
 
-public class ${className} extends ReceiverRegister<${targetType}> {
+public class ${className} extends ReceiverRegistrar<${targetType}> {
 
     @Override
-    protected void registerReceiversForTarget(Context context, final ${targetType} target) {
+    protected void registerReceivers(Context context, ${targetType} target, List<BroadcastReceiver> result) {

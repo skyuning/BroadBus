@@ -31,8 +31,8 @@ import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateNotFoundException;
-import me.skyun.anno.api.BroadcastExReceiver;
-import me.skyun.anno.api.ReceiverRegister;
+import me.skyun.broadcastex.api.BroadcastExReceiver;
+import me.skyun.broadcastex.api.ReceiverRegistrar;
 
 /**
  * Created by linyun on 16/10/28.
@@ -78,7 +78,7 @@ public class BroadcastProcessor extends AbstractProcessor {
         }
         for (Symbol.ClassSymbol classSymbol : methodSymbolsByClass.keySet()) {
             try {
-                processReceiverRegister(classSymbol, methodSymbolsByClass.get(classSymbol));
+                genRegisterFile(classSymbol, methodSymbolsByClass.get(classSymbol));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -86,13 +86,13 @@ public class BroadcastProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void processReceiverRegister(Symbol.ClassSymbol classSymbol, List<Symbol.MethodSymbol> methodSymbolList)
+    private void genRegisterFile(Symbol.ClassSymbol classSymbol, List<Symbol.MethodSymbol> methodSymbolList)
             throws IOException {
         mMessager.printMessage(Diagnostic.Kind.NOTE,
                 "Start processing receiver register for: " + classSymbol.getQualifiedName());
-        Writer writer = genReceiverRegister(classSymbol);
+        Writer writer = genRegisterClassCode(classSymbol);
         for (Symbol.MethodSymbol methodSymbol : methodSymbolList) {
-            processReceiver(methodSymbol, writer);
+            genRegisterReceiverCode(methodSymbol, writer);
         }
         writer.write("    }\n}");
         writer.flush();
@@ -101,9 +101,9 @@ public class BroadcastProcessor extends AbstractProcessor {
                 "Processing receiver register succeed for: " + classSymbol.getQualifiedName());
     }
 
-    private Writer genReceiverRegister(Symbol.ClassSymbol classSymbol) {
+    private Writer genRegisterClassCode(Symbol.ClassSymbol classSymbol) {
         String packageName = mElementUtils.getPackageOf(classSymbol).getQualifiedName().toString();
-        String simpleName = classSymbol.getSimpleName() + ReceiverRegister.GEN_FILE_POSTFIX;
+        String simpleName = classSymbol.getSimpleName() + ReceiverRegistrar.REGISTER_POSTFIX;
         String fullName = packageName + "." + simpleName;
         mMessager.printMessage(Diagnostic.Kind.NOTE, "Start rendering receiver register: " + fullName);
 
@@ -130,7 +130,7 @@ public class BroadcastProcessor extends AbstractProcessor {
         throw new RuntimeException("Render Receiver Register failed for: " + fullName);
     }
 
-    private void processReceiver(Symbol.MethodSymbol methodSymbol, Writer writer) throws IOException {
+    private void genRegisterReceiverCode(Symbol.MethodSymbol methodSymbol, Writer writer) throws IOException {
         mMessager.printMessage(Diagnostic.Kind.NOTE,
                 "Start processing receiver " + methodSymbol.getSimpleName());
 
@@ -138,7 +138,7 @@ public class BroadcastProcessor extends AbstractProcessor {
         model.methodName = methodSymbol.getSimpleName().toString();
         if (methodSymbol.getParameters().size() > 0) {
             Type.MethodType methodType = (Type.MethodType) methodSymbol.asType();
-            model.setParams(methodType.getParameterTypes(), methodSymbol.getParameters());
+            model.setParamTypes(methodType.getParameterTypes());
         }
         Attribute.Compound annoMirror = AptUtils.getAnnotatioMirror(methodSymbol, BroadcastExReceiver.class);
         if (annoMirror != null) {

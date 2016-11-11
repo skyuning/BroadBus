@@ -13,13 +13,13 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 20
+    compileSdkVersion 22
     buildToolsVersion "22"
 
     defaultConfig {
         applicationId "me.skyun.test"
         minSdkVersion 15
-        targetSdkVersion 20
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         multiDexEnabled true

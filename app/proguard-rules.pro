@@ -19,3 +19,12 @@
 -dontwarn freemarker.**
 -dontwarn com.sun.tools.javac.**
 -dontwarn javax.**
+
+-keep class me.skyun.broadcastex.api.Action
+-keep class me.skyun.broadcastex.api.ReceiverRegistrar
+-keep class me.skyun.broadcastex.api.BroadcastExReceiver
+-keep @me.skyun.broadcastex.api.Action class *
+-keep class * extends me.skyun.broadcastex.api.ReceiverRegistrar
+-keepclassmembers class * {
+    @me.skyun.broadcastex.api.BroadcastExReceiver <methods>;
+}

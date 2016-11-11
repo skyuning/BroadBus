@@ -1,0 +1,24 @@
+<#assign categoryArray = categories?join('", "')>
+<#assign paramTypeArray = paramTypes?join('", "')>
+<#assign contentPackagePrefix = "android.content.">
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getExtras() == null) {
+                    intent.putExtras(new Bundle());
+                }
+                target.${methodName}(
+                <#list paramTypes as type>
+                    <#if type?starts_with(contentPackagePrefix)>
+                        ${type?string[contentPackagePrefix?length..]?lower_case}<#if type?has_next>, </#if>
+                    <#else>
+                        (${type}) intent.getExtras().get("${type}")<#if type?has_next>, </#if>
+                    </#if>
+                </#list>
+                );
+            }
+        };
+        registerReceiver(context, target, receiver, "${action}",
+                new String[]{"${categoryArray}"}
+        );
+

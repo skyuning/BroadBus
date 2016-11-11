@@ -39,8 +39,6 @@ import me.skyun.broadcastex.api.ReceiverRegistrar;
  */
 public class BroadcastProcessor extends AbstractProcessor {
 
-    private static final String RECEIVER_REGISTER_TEMPLATE = "ReceiverRegisterTemplate.java";
-    private static final String RECEIVER_TEMPLATE = "ReceiverTemplate.java";
     private JavacFiler mFiler;
     private Messager mMessager;
     private Configuration mConfig;
@@ -109,7 +107,7 @@ public class BroadcastProcessor extends AbstractProcessor {
 
         try {
             Writer writer = mFiler.createSourceFile(fullName).openWriter();
-            Template template = mConfig.getTemplate(RECEIVER_REGISTER_TEMPLATE);
+            Template template = mConfig.getTemplate(Const.RECEIVER_REGISTER_TEMPLATE);
             FileModel fileModel = new FileModel(packageName, simpleName, classSymbol.getSimpleName().toString());
             template.process(fileModel, writer);
             mMessager.printMessage(Diagnostic.Kind.NOTE, "Render receiver register succeed: " + fullName);
@@ -161,7 +159,7 @@ public class BroadcastProcessor extends AbstractProcessor {
         }
 
         try {
-            Template template = mConfig.getTemplate(RECEIVER_TEMPLATE);
+            Template template = mConfig.getTemplate(Const.RECEIVER_TEMPLATE);
             template.process(model, writer);
         } catch (IOException e) {
             e.printStackTrace();

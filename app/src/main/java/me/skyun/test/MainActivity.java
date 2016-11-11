@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,9 +18,13 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(Actions.TestAction.class.getCanonicalName());
+        Intent intent0 = new Intent(Actions.class.getName().replace("$", "."));
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent0);
+
+        Intent intent = new Intent(Actions.TestAction.class.getName().replace("$", "."));
         intent.addCategory(this.toString());
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        Log.d("skyun-debug", "Send Broadcast: " + intent.toString());
 
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,10 +41,10 @@ public class MainActivity extends FragmentActivity {
         Toast.makeText(this, "broadcast received in: " + this.toString(), Toast.LENGTH_SHORT).show();
     }
 
-    @BroadcastExReceiver(actionType = Actions.TestAction.class,
+    @BroadcastExReceiver(actionType = Actions.class,
             categoryTypes = {Integer.class, String.class},
-            categories = {"aa", "bb"})
-    public void test2(Context context, Intent intent, String sss, Integer iii) {
+            categories = {"aa"})
+    public void test2(Context context, String sss, Float fff) {
         Toast.makeText(this, "broadcast received in: " + this.toString(), Toast.LENGTH_SHORT).show();
     }
 }

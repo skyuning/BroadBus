@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,8 +22,24 @@ public abstract class ReceiverRegistrar<T> {
 
     protected abstract void registerReceivers(Context context, T target, List<BroadcastReceiver> result);
 
-    protected static BroadcastReceiver registerReceiver(final Context context, String action, String[] categories,
-            final Object target, final String methodName, final String[] paramTypeNames) {
+    protected Object[] getParamValues(Context context, Intent intent, String[] paramTypes) {
+        Object[] paramValues = new Object[paramTypes.length];
+        if (intent.getExtras() != null) {
+            for (int i = 0; i < paramValues.length; i++) {
+                if (paramTypes[i].equals(Context.class.getCanonicalName())) {
+                    paramValues[i] = context;
+                } else if (paramTypes[i].equals(Intent.class.getCanonicalName())) {
+                    paramValues[i] = intent;
+                } else {
+                    paramValues[i] = intent.getExtras().get(paramTypes[i]);
+                }
+            }
+        }
+        return paramValues;
+    }
+
+    protected static <T> BroadcastReceiver registerReceiver(final Context context, T target,
+            BroadcastReceiver receiver, String action, String[] categories) {
 
         IntentFilter filter = new IntentFilter(action);
         for (String c : categories) {
@@ -30,40 +47,8 @@ public abstract class ReceiverRegistrar<T> {
         }
         filter.addCategory(getTargetCategory(target));
 
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Object[] paramValues = new Object[paramTypeNames.length];
-                if (intent.getExtras() != null) {
-                    for (int i = 0; i < paramValues.length; i++) {
-                        if (paramTypeNames[i].equals(Context.class.getCanonicalName())) {
-                            paramValues[i] = context;
-                        } else if (paramTypeNames[i].equals(Intent.class.getCanonicalName())) {
-                            paramValues[i] = intent;
-                        } else {
-                            paramValues[i] = intent.getExtras().get(paramTypeNames[i]);
-                        }
-                    }
-                }
-                try {
-                    invokeMethod(target, methodName, paramTypeNames, paramValues);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter);
+        Log.d(ReceiverRegistrar.class.getName() + ".registerReceiver", Utils.filterToString(filter));
         return receiver;
     }
 
@@ -73,6 +58,8 @@ public abstract class ReceiverRegistrar<T> {
         for (int i = 0; i < paramTypes.length; i++) {
             paramTypes[i] = Class.forName(paramTypeNames[i]);
         }
+        Log.d(ReceiverRegistrar.class.getName(), "invokeMethod: "
+                + target.getClass().getName() + "." + methodName + Utils.paramTypesToString(paramTypeNames));
         Method method = target.getClass().getMethod(methodName, paramTypes);
         method.invoke(target, paramValues);
     }

@@ -11,7 +11,6 @@ import java.util.Iterator;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 
-import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 
@@ -61,15 +60,9 @@ public class AptUtils {
         config.setDefaultEncoding("UTF-8");
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         config.setLogTemplateExceptions(false);
-        try {
-            config.setDirectoryForTemplateLoading(new File("../"));
-            String path = "broadcastex-compiler/src/main/resources/templates";
-            config.setTemplateLoader(new FileTemplateLoader(new File(path)));
-            return config;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to init freemarker configuration.", e);
-        }
+        //            config.setDirectoryForTemplateLoading(new File(Const.TEMPLATE_PATH));
+        config.setClassForTemplateLoading(AptUtils.class, Const.TEMPLATE_PATH);
+        return config;
     }
 
     public static Attribute.Compound getAnnotatioMirror(Symbol symbol, Class annoClz) {

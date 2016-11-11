@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface BroadcastExReceiver {
 
     int integer() default 0;

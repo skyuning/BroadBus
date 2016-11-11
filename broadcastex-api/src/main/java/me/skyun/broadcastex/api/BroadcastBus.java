@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +39,7 @@ public class BroadcastBus {
     }
 
     public static void setUp(Application application) {
+        Log.d(BroadcastBus.class.getName(), "setUp");
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -78,9 +80,12 @@ public class BroadcastBus {
     private Map<String, List<BroadcastReceiver>> mReceiversByTarget = new HashMap<>();
 
     public <T> void registerTarget(Context context, T target) {
+        Log.d(BroadcastBus.class.getName(), "registerTarget");
         try {
             String registrarClzName = target.getClass().getName() + ReceiverRegistrar.REGISTER_POSTFIX;
+            Log.d(BroadcastBus.class.getName(), "registerTarget: load " + registrarClzName);
             Class<ReceiverRegistrar<T>> registrarClz = (Class<ReceiverRegistrar<T>>) Class.forName(registrarClzName);
+            Log.d(BroadcastBus.class.getName(), "registerTarget: " + registrarClzName + " loaded");
             Constructor<ReceiverRegistrar<T>> constructor = registrarClz.getConstructor();
             ReceiverRegistrar<T> registrar = constructor.newInstance();
 

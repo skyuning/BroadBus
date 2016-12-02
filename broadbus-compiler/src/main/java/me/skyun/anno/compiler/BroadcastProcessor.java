@@ -31,7 +31,7 @@ import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateNotFoundException;
-import me.skyun.broadcastex.api.BroadcastExReceiver;
+import me.skyun.broadcastex.api.BroadBusReceiver;
 import me.skyun.broadcastex.api.ReceiverRegistrar;
 
 /**
@@ -56,13 +56,13 @@ public class BroadcastProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> types = new HashSet<String>();
-        types.add(BroadcastExReceiver.class.getCanonicalName());
+        types.add(BroadBusReceiver.class.getCanonicalName());
         return types;
     }
 
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
         Map<Symbol.ClassSymbol, List<Symbol.MethodSymbol>> methodSymbolsByClass =
-                new HashMap<Symbol.ClassSymbol, List<Symbol.MethodSymbol>>();
+                new HashMap<>();
         for (TypeElement anno : annotations) {
             for (Element element : env.getElementsAnnotatedWith(anno)) {
                 Symbol.ClassSymbol classSymbol = AptUtils.getEnclosingClass(element);
@@ -134,30 +134,34 @@ public class BroadcastProcessor extends AbstractProcessor {
                 "Start processing receiver " + methodSymbol.getSimpleName());
 
         ReceiverModel model = new ReceiverModel();
+
+        // 解析methodName和parameter
         model.methodName = methodSymbol.getSimpleName().toString();
         if (methodSymbol.getParameters().size() > 0) {
             Type.MethodType methodType = (Type.MethodType) methodSymbol.asType();
             model.setParamTypes(methodType.getParameterTypes());
         }
-        Attribute.Compound annoMirror = AptUtils.getAnnotatioMirror(methodSymbol, BroadcastExReceiver.class);
+
+        // 解析actionTypes和categoryTypes
+        Attribute.Compound annoMirror = AptUtils.getAnnotatioMirror(methodSymbol, BroadBusReceiver.class);
         if (annoMirror != null) {
             Map<Symbol.MethodSymbol, Attribute> elementValues = annoMirror.getElementValues();
             for (Symbol.MethodSymbol annoMethod : elementValues.keySet()) {
-                if (BroadcastExReceiver.ACTION_TYPE.equals(annoMethod.getSimpleName().toString())) {
-                    Attribute.Class actionTypeValue = (Attribute.Class) elementValues.get(annoMethod);
-                    model.action = actionTypeValue.getValue().toString();
-                } else if (BroadcastExReceiver.CATEGORY_TYPES.equals(annoMethod.getSimpleName().toString())) {
-                    List<Attribute> categoryTypesValue = (List<Attribute>) elementValues.get(annoMethod).getValue();
-                    model.addCategoryTypes(categoryTypesValue);
+                if (BroadBusReceiver.ACTION_TYPES.equals(annoMethod.getSimpleName().toString())) {
+                    Attribute.Array actionTypeAttr = (Attribute.Array) elementValues.get(annoMethod);
+                    List<Attribute> actionTypes = actionTypeAttr.getValue();
+                    model.addActionTypes(actionTypes);
+                } else if (BroadBusReceiver.CATEGORY_TYPES.equals(annoMethod.getSimpleName().toString())) {
+                    Attribute.Array categoryTypeAttr = (Attribute.Array) elementValues.get(annoMethod);
+                    List<Attribute> categoryTypes = categoryTypeAttr.getValue();
+                    model.addCategoryTypes(categoryTypes);
                 }
             }
         }
-        BroadcastExReceiver anno = methodSymbol.getAnnotation(BroadcastExReceiver.class);
+        BroadBusReceiver anno = methodSymbol.getAnnotation(BroadBusReceiver.class);
         model.addCategories(anno.categories());
-        String action = anno.action();
-        if (action != null && action.length() > 0) {
-            model.action = anno.action();
-        }
+        model.addActions(anno.actions());
+        model.setIsFragmentRefresher(anno.isFragmentRefresher());
 
         try {
             Template template = mConfig.getTemplate(Const.RECEIVER_TEMPLATE);

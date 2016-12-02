@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.BroadcastReceiver;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,3 +20,4 @@ public class ${className} extends ReceiverRegistrar<${targetType}> {
     protected List<BroadcastReceiver> registerReceivers(Context context, final ${targetType} target) {
         List<BroadcastReceiver> receiverList = new ArrayList<>();
         BroadcastReceiver receiver;
+

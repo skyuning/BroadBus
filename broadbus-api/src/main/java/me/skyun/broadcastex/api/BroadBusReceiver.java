@@ -11,25 +11,25 @@ import java.lang.annotation.Target;
 @Inherited
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.CLASS)
-public @interface BroadcastExReceiver {
+public @interface BroadBusReceiver {
 
-    int integer() default 0;
-
-    String action() default "";
+    String[] actions() default "";
 
     String[] categories() default {};
 
     /**
-     * 必须跟{@link #actionType()}函数名一致
+     * 必须跟{@link #actionTypes()}函数名一致
      */
-    String ACTION_TYPE = "actionType";
+    String ACTION_TYPES = "actionTypes";
 
-    Class actionType() default Class.class;
+    Class[] actionTypes() default Class.class;
 
     /**
-     * 必须跟{@link #actionType()}函数名一致
+     * 必须跟{@link #categoryTypes()} ()}函数名一致
      */
     String CATEGORY_TYPES = "categoryTypes";
 
     Class[] categoryTypes() default {};
+
+    boolean isFragmentRefresher() default false;
 }

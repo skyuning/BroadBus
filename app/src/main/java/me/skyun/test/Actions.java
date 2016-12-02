@@ -9,5 +9,6 @@ import me.skyun.broadcastex.api.Action;
 public class Actions {
     @Action
     public static class TestAction {
+        public String s;
     }
 }

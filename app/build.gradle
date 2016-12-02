@@ -6,8 +6,8 @@ dependencies {
 
 //    compile(name: 'broadcastex-api-release', ext: 'aar')
 //    compile(name: 'broadcastex-compiler-release', ext: 'aar')
-    compile project(':broadcastex-api')
-    compile project(':broadcastex-compiler')
+    compile project(':broadbus-api')
+    compile project(':broadbus-compiler')
     provided 'org.freemarker:freemarker:2.3.25-incubating'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 }

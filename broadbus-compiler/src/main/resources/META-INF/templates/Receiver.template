@@ -1,0 +1,45 @@
+<#assign categoryArray = categories?join('", "')>
+<#assign actionArray = actions?join('", "')>
+<#assign paramTypeArray = paramTypes?join('", "')>
+<#assign contentPackagePrefix = "android.content.">
+        // register receiver for ${methodName}
+        receiver = new BroadcastReceiver() {
+        <#if isFragmentRefresher>
+            private Bundle mBundle = new Bundle();
+        </#if>
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = new Bundle();
+                if (intent.getExtras() != null) {
+                    bundle.putAll(intent.getExtras());
+                }
+                <#if isFragmentRefresher>
+                mBundle.putAll(bundle);
+                bundle = mBundle;
+
+                if (!(target instanceof Fragment)) {
+                    throw new IllegalArgumentException("target must be Fragment for fragment refresher");
+                }
+                if (target.getView() == null) {
+                    return;
+                }
+                </#if>
+
+                target.${methodName}(
+                <#list paramTypes as type>
+                    <#if type?starts_with(contentPackagePrefix)>
+                        ${type?string[contentPackagePrefix?length..]?lower_case}<#if type?has_next>, </#if>
+                    <#else>
+                        (${type}) bundle.get("${type}")<#if type?has_next>, </#if>
+                    </#if>
+                </#list>
+                );
+            }
+        };
+        registerReceiver(context, target,<#if isFragmentRefresher> true,<#else> false,</#if> receiver,
+                new String[]{"${actionArray}"},
+                new String[]{"${categoryArray}"}
+        );
+        receiverList.add(receiver);
+

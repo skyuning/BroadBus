@@ -38,10 +38,16 @@ public abstract class ReceiverRegistrar<T> {
         return paramValues;
     }
 
-    protected static <T> BroadcastReceiver registerReceiver(final Context context, T target,
-            BroadcastReceiver receiver, String action, String[] categories) {
+    protected static <T> BroadcastReceiver registerReceiver(Context context, T target, boolean isFragmentRefresher,
+            BroadcastReceiver receiver, String[] actions, String[] categories) {
 
-        IntentFilter filter = new IntentFilter(action);
+        IntentFilter filter = new IntentFilter();
+        if (isFragmentRefresher) {
+            filter.addAction(BroadBus.ACTION_FRAGMENT_VIEW_CREATED);
+        }
+        for (String a : actions) {
+            filter.addAction(a);
+        }
         for (String c : categories) {
             filter.addCategory(c);
         }

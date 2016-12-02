@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.TextView;
 
-import me.skyun.broadcastex.api.BroadcastBus;
+import me.skyun.broadcastex.api.BroadBus;
 
 /**
  * Created by linyun on 16/11/2.
@@ -18,7 +18,7 @@ public class TestApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        BroadcastBus.setUp(this);
+        BroadBus.setUp(this);
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {

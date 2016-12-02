@@ -22,9 +22,9 @@
 
 -keep class me.skyun.broadcastex.api.Action
 -keep class me.skyun.broadcastex.api.ReceiverRegistrar
--keep class me.skyun.broadcastex.api.BroadcastExReceiver
+-keep class me.skyun.broadcastex.api.BroadBusReceiver
 -keep @me.skyun.broadcastex.api.Action class *
 -keep class * extends me.skyun.broadcastex.api.ReceiverRegistrar
 -keepclassmembers class * {
-    @me.skyun.broadcastex.api.BroadcastExReceiver <methods>;
+    @me.skyun.broadcastex.api.BroadBusReceiver <methods>;
 }
